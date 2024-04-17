@@ -41,15 +41,17 @@ impl HttpClient {
         let result = result.unwrap();
         let status_code = result.status();
 
+        let body_str = result.text().await.unwrap();
+
         if status_code != StatusCode::from_u16(200).unwrap() {
             println!("Status code is {}", status_code);
             return None;
         }
 
-        match result.json::<R>().await {
+        match serde_json::from_str::<R>(body_str.as_str()) {
             Ok(res) => return Some(res),
             Err(err) => {
-                println!("Unable to parse, error = {}", err);
+                println!("Unable to parse, error = {}, body = {}", err, body_str);
                 return None;
             }
         }

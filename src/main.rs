@@ -17,6 +17,13 @@ async fn main() {
     if let Some(joke) = joke {
         println!("Joke: {}", joke.joke);
     }
+
+    let joke = http_client.get::<Joke>("/j/2").await;
+
+    if let Some(joke) = joke {
+        println!("Joke: {}", joke.joke);
+    }
+    
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
