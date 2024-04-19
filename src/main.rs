@@ -1,35 +1,41 @@
-use http_client::HttpClient;
-use reqwest::header::{ACCEPT, USER_AGENT};
-use serde::{Deserialize, Serialize};
+use http_client::{
+    todo::{self, Todo, TodoDto},
+    Client, HttpClient,
+};
+use reqwest::header::ACCEPT;
 
 #[tokio::main]
 async fn main() {
-    const JOKE_URL: &str = "https://icanhazdadjoke.com";
+    const TODO_URL: &str = "http://localhost:5185/api/todo";
+    let mut http_client = HttpClient::new(TODO_URL.to_string());
+    let http_client = http_client.set_header(ACCEPT, String::from("application/json"));
 
-    let http_client = HttpClient::new(JOKE_URL.to_string());
+    let todos = http_client.get::<Vec<Todo>>("").await.unwrap();
 
-    let http_client = http_client
-        .set_header(ACCEPT, String::from("application/json"))
-        .set_header(USER_AGENT, String::from("Rust http client"));
+    print_todos(&todos);
 
-    let joke = http_client.get::<Joke>("/").await;
+    println!("Marking the first todo as completed");
+    let todo = todos.last().unwrap();
+    let todo_dto = todo.to_todo_dto().mark_as_completed();
 
-    if let Some(joke) = joke {
-        println!("Joke: {}", joke.joke);
+    http_client
+        .put::<TodoDto, Todo>(format!("/{}", todo.get_id()).as_str(), todo_dto)
+        .await
+        .unwrap();
+
+    let todos = http_client.get::<Vec<Todo>>("").await.unwrap();
+
+    print_todos(&todos);
+
+    for todo in todos.iter() {
+        http_client
+            .delete::<()>(format!("/{}", todo.get_id()).as_str())
+            .await;
     }
-
-    let joke = http_client.get::<Joke>("/j/2").await;
-
-    if let Some(joke) = joke {
-        println!("Joke: {}", joke.joke);
-    }
-    
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct Joke {
-    id: String,
-    joke: String,
-    status: i32,
+fn print_todos(todos: &Vec<Todo>) {
+    for todo in todos.iter() {
+        println!("{:?}", todo);
+    }
 }
-
