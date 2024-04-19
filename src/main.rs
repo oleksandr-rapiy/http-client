@@ -1,6 +1,6 @@
 use http_client::{
+    client::{Client, HttpClient},
     todo::{Todo, TodoDto},
-    Client, HttpClient,
 };
 use reqwest::header::ACCEPT;
 
