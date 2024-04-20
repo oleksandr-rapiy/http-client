@@ -147,6 +147,11 @@ impl HttpClient {
             return None;
         }
 
+        if body_str.is_empty() {
+            println!("Body is empty");
+            return None;
+        }
+
         match serde_json::from_str::<R>(body_str.as_str()) {
             Ok(res) => return Some(res),
             Err(err) => {
