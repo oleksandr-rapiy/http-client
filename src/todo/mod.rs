@@ -10,13 +10,6 @@ pub struct Todo {
 }
 
 impl Todo {
-    pub fn to_todo_dto(&self) -> TodoDto {
-        TodoDto {
-            title: self.title.clone(),
-            is_completed: self.is_completed,
-        }
-    }
-
     pub fn get_id(&self) -> i32 {
         self.id
     }
@@ -42,5 +35,16 @@ impl TodoDto {
         self.is_completed = true;
 
         return self.to_owned();
+    }
+}
+
+pub struct Mapper;
+
+impl Mapper {
+    pub fn to_todo_dto(todo: &Todo) -> TodoDto {
+        TodoDto {
+            title: todo.title.clone(),
+            is_completed: todo.is_completed,
+        }
     }
 }

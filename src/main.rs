@@ -1,6 +1,6 @@
 use http_client::{
     client::{Client, HttpClient},
-    todo::{Todo, TodoDto},
+    todo::{Todo, TodoDto, Mapper},
 };
 use reqwest::header::ACCEPT;
 
@@ -16,7 +16,7 @@ async fn main() {
 
     println!("Marking the first todo as completed");
     let todo = todos.last().unwrap();
-    let todo_dto = todo.to_todo_dto().mark_as_completed();
+    let todo_dto = Mapper::to_todo_dto(&todo).mark_as_completed();
 
     http_client
         .put::<TodoDto, Todo>(format!("/{}", todo.get_id()).as_str(), todo_dto)
